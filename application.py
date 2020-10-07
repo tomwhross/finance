@@ -113,13 +113,18 @@ def buy():
 
     # render the buy template on GET
     if request.method == "GET":
-        return render_template("buy.html")
+        stock_symbols = get_all_symbols()
+        return render_template("buy.html", stock_symbols=(stock_symbols))
 
     # if POST
 
     # get the symbol and number of shares from the form
     symbol = request.form.get("symbol")
-    shares = request.form.get("shares")
+
+    try:
+        shares = int(request.form.get("shares"))
+    except ValueError:
+        return apology("You must provide a valid number of shares", 418)
 
     error_message = validate_transaction(symbol, shares)
     if error_message:
@@ -151,7 +156,7 @@ def buy():
 
     # record the purchase of the stock
     db.execute(
-        "INSERT INTO shares (user_id, symbol, name, shares, price) VALUES (:user_id, :symbol, :name, :shares, :price);",
+        "INSERT INTO shares (user_id, symbol, name, shares, price)VALUES (:user_id, :symbol, :name, :shares, :price);",
         user_id=session["user_id"],
         symbol=stock_data["symbol"],
         name=stock_data["name"],
