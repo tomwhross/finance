@@ -39,7 +39,7 @@ Log In
     <br>
     <button class="btn btn-primary" type="submit" id="submit" disabled>Buy</button></div>
 </form>
-<script type="text/javascript">
+<script>
     document.querySelector("#invalid_symbol").style.visibility = "hidden";
     document.querySelector("#invalid_shares").style.visibility = "hidden";
 
@@ -49,7 +49,7 @@ Log In
     const stock_symbols = {{ stock_symbols | tojson }};
 
     function validate_symbol() {
-        let symbol = document.querySelector("#symbol").value;
+        let symbol = document.querySelector("#symbol").value.toUpperCase();
 
         if (stock_symbols.includes(symbol) && symbol !== "") {
             valid_symbol = true;
@@ -98,5 +98,4 @@ Log In
         }
     }
 </script>
-
 {% endblock %}

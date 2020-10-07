@@ -7,7 +7,14 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd, validate_transaction
+from helpers import (
+    apology,
+    get_all_symbols,
+    login_required,
+    lookup,
+    usd,
+    validate_transaction,
+)
 
 # Configure application
 app = Flask(__name__)
@@ -53,7 +60,13 @@ def index():
 
     # get the user's current stock data
     user_stock_data = db.execute(
-        "SELECT symbol, name, SUM(shares) AS 'shares' FROM shares WHERE user_id = :user_id GROUP BY symbol, name ORDER BY symbol desc;",
+        (
+            """SELECT symbol, name, SUM(shares) AS 'shares' 
+        FROM shares WHERE user_id = :user_id
+        GROUP BY symbol, name
+        HAVING SUM(shares) > 0
+        ORDER BY symbol desc;"""
+        ),
         user_id=session["user_id"],
     )
 
@@ -131,7 +144,7 @@ def buy():
         return apology(*error_message)
 
     # lookup the stock based on the symbol
-    stock_data = lookup(symbol)
+    stock_data = lookup(symbol.upper())
 
     # report to the user if the stock is not found based on the symbol
     if not stock_data:
@@ -307,13 +320,25 @@ def sell():
 
     # render the sell template on GET
     if request.method == "GET":
-        return render_template("sell.html")
+        user_stock_data = db.execute(
+            "SELECT DISTINCT symbol AS 'symbol' FROM shares WHERE user_id = :user_id;",
+            user_id=session["user_id"],
+        )
+
+        user_stock_symbols = []
+        for stock in user_stock_data:
+            user_stock_symbols.append(stock["symbol"])
+
+        return render_template("sell.html", stock_symbols=user_stock_symbols)
 
     # if POST
 
     # get the symbol and number of shares from the form
-    symbol = request.form.get("symbol")
-    shares = request.form.get("shares")
+    symbol = request.form.get("symbol").upper()
+    try:
+        shares = int(request.form.get("shares"))
+    except ValueError:
+        return apology("You must provide a number of shares to sell", 418)
 
     error_message = validate_transaction(symbol, shares)
     if error_message:

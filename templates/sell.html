@@ -1,18 +1,101 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Log In
+Log In
 {% endblock %}
 
 {% block main %}
-    <form action="/sell" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="symbol" placeholder="Symbol" type="text">
+
+<form action="/sell" method="post">
+    <div class="form-group row">
+        <label for="symbol" class="col-sm-2 col-form-label" id="symbol_label"></label>
+        <div class="col-sm-8">
+            <input autocomplete="off" autofocus type="text" class="form-control" id="symbol" placeholder="Symbol"
+                name="symbol" onchange="validate_symbol(); validate_transaction();"
+                onblur="validate_symbol(); validate_transaction();"
+                onkeyup="validate_symbol(); validate_transaction();">
         </div>
-        <div class="form-group">
-            <input class="form-control" name="shares" placeholder="Shares" type="number">
+        <div class="col-sm-12">
+            <small id="invalid_symbol" class="text-danger">
+                Please enter a valid symbol
+            </small>
         </div>
-        <br>
-        <button class="btn btn-primary" type="submit">Sell</button>
-    </form>
+    </div>
+
+    <div class="form-group row">
+        <label for="symbol" class="col-sm-2 col-form-label" id="shares_label"></label>
+        <div class="col-sm-8">
+            <input autocomplete="off" type="number" class="form-control" id="shares" placeholder="Shares" name="shares"
+                onchange="validate_shares(); validate_transaction();"
+                onblur="validate_shares(); validate_transaction();"
+                onkeyup="validate_shares(); validate_transaction();">
+        </div>
+        <div class="col-sm-12">
+            <small id="invalid_shares" class="text-danger">
+                Please enter a number of shares to buy
+            </small>
+        </div>
+    </div>
+    <br>
+    <button class="btn btn-primary" type="submit" id="submit" disabled>Sell</button></div>
+</form>
+<script>
+    document.querySelector("#invalid_symbol").style.visibility = "hidden";
+    document.querySelector("#invalid_shares").style.visibility = "hidden";
+
+    let fresh = true;
+    var valid_symbol = false;
+    var valid_shares = false;
+    const stock_symbols = {{ stock_symbols | tojson }};
+
+    function validate_symbol() {
+        let symbol = document.querySelector("#symbol").value.toUpperCase();
+
+        if (stock_symbols.includes(symbol) && symbol !== "") {
+            valid_symbol = true;
+            document.querySelector("#invalid_symbol").style.visibility = "hidden";
+            document.querySelector("#symbol").className = "form-control is-valid";
+        }
+        else if (stock_symbols.includes(symbol) && symbol !== "" && valid_shares === true) {
+            valid_symbol = true;
+            document.querySelector("#submit").disabled = false;
+            document.querySelector("#invalid_symbol").style.visibility = "hidden";
+            document.querySelector("#symbol").className = "form-control is-valid";
+        }
+        else {
+            valid_symbol = false;
+            document.querySelector("#invalid_symbol").style.visibility = "visible";
+            document.querySelector("#symbol").className = "form-control is-invalid";
+        }
+    }
+
+    function validate_shares() {
+        let shares = document.querySelector("#shares");
+        if (!(isNaN(shares.value)) && shares.value !== "" && shares.value !== undefined) {
+            valid_shares = true;
+            document.querySelector("#invalid_shares").style.visibility = "hidden";
+            document.querySelector("#shares").className = "form-control is-valid";
+        }
+        else if (!isNaN(shares.value) && shares.value !== "" && shares.value !== undefined && valid_symbol === true) {
+            valid_shares = true;
+            document.querySelector("#submit").disabled = false;
+            document.querySelector("#invalid_shares").style.visibility = "hidden";
+            document.querySelector("#shares").className = "form-control is-valid";
+        }
+        else {
+            valid_shares = false;
+            document.querySelector("#invalid_shares").style.visibility = "visible";
+            document.querySelector("#shares").className = "form-control is-invalid";
+        }
+    }
+
+    function validate_transaction() {
+        if (valid_symbol === true && valid_shares === true) {
+            document.querySelector("#submit").disabled = false;
+        }
+        else {
+            document.querySelector("#submit").disabled = true;
+        }
+    }
+</script>
 {% endblock %}
