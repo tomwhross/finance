@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Symbol</th>
+                <th scope="col">Name</th>
+                <th scope="col">Shares</th>
+                <th scope="col">Price</th>
+                <th scope="col">TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in user_stock_data %}
+                <tr>
+                    <td>{{ stock["symbol"] }}</td>
+                    <td>{{ stock["name"] }}</td>
+                    <td>{{ stock["shares"] }}</td>
+                    <td>{{ stock["price"] }}</td>
+                    <td>{{ stock["total"] }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="4">CASH</td>
+                <td>{{ cash_amount }}</td>
+            </tr>
+            <tr>
+                <td colspan="4"></td>
+                <td><b>{{ total_amount }}</b></td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
