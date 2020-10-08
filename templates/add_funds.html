@@ -1,22 +1,51 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Log In
+Log In
 {% endblock %}
 
 {% block main %}
-    <div>
-        Current cash on hand: <b>{{ current_cash }}</b>
-        <br>
-        <br>
+<div>
+    Current cash on hand: <b>{{ current_cash }}</b>
+    <br>
+    <br>
+</div>
+
+<form action="/add_funds" method="post">
+    <div class="form-group row">
+        <label for="symbol" class="col-sm-2 col-form-label" id="symbol_label"></label>
+        <div class="col-sm-8">
+            <input autocomplete="off" autofocus type="number" class="form-control" id="amount" name="amount"
+                placeholder="Cash amount" step="0.01" min=0 onchange="validate_amount()" onblur="validate_amount()"
+                onkeyup="validate_amount()">
+        </div>
+        <div class="col-sm-12">
+            <small id="invalid_amount" class="text-danger">
+                Please enter a valid amount
+            </small>
+        </div>
     </div>
-    <form action="/add_funds" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="amount" placeholder="Cash amount" type="number" step="0.01" min=0>
-        </div>
-        <div>
-            <br>
-            <button class="btn btn-primary" type="submit">Add Funds</button>
-        </div>
-    </form>
+    <div>
+        <br>
+        <button class="btn btn-primary" type="submit" id="submit">Add Funds</button>
+    </div>
+</form>
+<script>
+    document.querySelector("#invalid_amount").style.visibility = "hidden";
+
+    function validate_amount() {
+
+        let amount = document.querySelector("#amount");
+        if (!(isNaN(amount.value)) && amount.value !== "" && amount.value !== undefined) {
+            document.querySelector("#submit").disabled = false;
+            document.querySelector("#invalid_amount").style.visibility = "hidden";
+            document.querySelector("#amount").className = "form-control is-valid";
+        }
+        else {
+            document.querySelector("#submit").disabled = true;
+            document.querySelector("#invalid_amount").style.visibility = "visible";
+            document.querySelector("#amount").className = "form-control is-invalid";
+        }
+    }
+</script>
 {% endblock %}

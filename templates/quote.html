@@ -1,17 +1,48 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Log In
+Log In
 {% endblock %}
 
 {% block main %}
-    <form action="/quote" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="symbol" placeholder="Symbol" type="text">
+<form action="/quote" method="post">
+    <div class="form-group row">
+        <label for="symbol" class="col-sm-2 col-form-label" id="symbol_label"></label>
+        <div class="col-sm-8">
+            <input autocomplete="off" autofocus type="text" class="form-control" id="symbol" placeholder="Symbol"
+                name="symbol" onchange="validate_symbol()" onblur="validate_symbol()" onkeyup="validate_symbol()">
         </div>
-        <div>
-            <br>
-            <button class="btn btn-primary" type="submit">Quote</button>
+        <div class="col-sm-12">
+            <small id="invalid_symbol" class="text-danger">
+                Please enter a valid symbol
+            </small>
         </div>
-    </form>
+    </div>
+    <div>
+        <br>
+        <button class="btn btn-primary" type="submit" id="submit">Quote</button>
+    </div>
+</form>
+<script>
+    document.querySelector("#invalid_symbol").style.visibility = "hidden";
+
+    var valid_symbol = false;
+    const stock_symbols = {{ stock_symbols | tojson }};
+
+    function validate_symbol() {
+        let symbol = document.querySelector("#symbol").value.toUpperCase();
+
+        if (stock_symbols.includes(symbol) && symbol !== "") {
+            document.querySelector("#submit").disabled = false;
+            document.querySelector("#invalid_symbol").style.visibility = "hidden";
+            document.querySelector("#symbol").className = "form-control is-valid";
+        }
+        else {
+            document.querySelector("#submit").disabled = true;
+            document.querySelector("#invalid_symbol").style.visibility = "visible";
+            document.querySelector("#symbol").className = "form-control is-invalid";
+        }
+    }
+</script>
+
 {% endblock %}
