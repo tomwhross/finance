@@ -109,7 +109,7 @@ def validate_transaction(symbol=None, shares=None):
 
     # ensure the user has submitted a number of shares
     if not shares:
-        return ("must provide an amount of shares to buy", 418)
+        return ("must provide an amount of shares", 418)
 
     # validate that user is entering a number of shares
     # the form itself should also protect against this
